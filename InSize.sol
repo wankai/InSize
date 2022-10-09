@@ -15,14 +15,14 @@ contract InSize {
 
     mapping (address => mapping (address => uint)) allowances_;
 
-    address internal admin_;
+    address public admin;
     
     constructor() {
-        admin_ = msg.sender;
+        admin = msg.sender;
     }
 
     function changeAdmin(address newAdmin) public returns (bool) {
-        admin_ = newAdmin;
+        admin = newAdmin;
         return true;
     }
 
@@ -71,7 +71,7 @@ contract InSize {
     }
 
     function mint(address to, uint amount) public returns (bool) {
-        require(msg.sender == admin_, "not admin");
+        require(msg.sender == admin, "not admin");
         balances_[to] += amount;
         totalSupply += amount;
         emit Transfer(address(0), to, amount);
