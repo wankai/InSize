@@ -21,7 +21,7 @@ contract InSize {
         admin_ = msg.sender;
     }
     
-    function admin() public returns (address) {
+    function admin() public view returns (address) {
         return admin_;
     }
     
