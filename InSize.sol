@@ -22,7 +22,7 @@ contract InSize {
     }
     
     function admin() public returns (address) {
-        return admin_
+        return admin_;
     }
     
     function changeAdmin(address newAdmin) public returns (bool) {
