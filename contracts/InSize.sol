@@ -7,7 +7,7 @@ contract InSize {
 
     string public constant name = "InSize";
     string public constant symbol = "SIZE";
-    uint8 public constant decimals = 1;
+    uint8 public constant decimals = 0;
 
     uint public totalSupply;
 
@@ -26,6 +26,7 @@ contract InSize {
     }
     
     function changeAdmin(address newAdmin) public returns (bool) {
+        require(msg.sender == admin_, "only current admin can change admin address");
         admin_ = newAdmin;
         return true;
     }
@@ -41,8 +42,8 @@ contract InSize {
     function approve(address spender, uint amount) public returns (bool) {
         address sender = msg.sender;
 
-        require(spender != address(0), "cannot approve zero address");
-        require(balances_[sender] >= amount, "blance is not enough");
+        require(spender != address(0), "can not approve to zero address");
+        require(balances_[sender] >= amount, "balance is not enough");
 
         allowances_[sender][spender] = amount;
 
@@ -54,18 +55,19 @@ contract InSize {
         return _transferToken(msg.sender, to, amount);
     }
     function transferFrom(address from, address to, uint amount) public returns (bool) {
-        uint oldAllowance = allowances_[from][to];
+        address sender = msg.sender;
+        uint oldAllowance = allowances_[from][sender];
         require (oldAllowance >= amount, "allowance is not enough");
         uint newAllowance = oldAllowance - amount;
-        allowances_[from][to] = newAllowance;
-        emit Approval(from, to, newAllowance);
+        allowances_[from][sender] = newAllowance;
+        emit Approval(from, sender, newAllowance);
         return _transferToken(from, to, amount);
     }
 
     function _transferToken(address from, address to, uint amount) internal returns (bool) {
         require(from != address(0), "from address cannot be zero");
-        require(to != address(0), "to address cannot be zero");
-        require(balances_[from] >= amount, "blance is not enough");
+        require(to != address(0), "cannot transfer token to zero address");
+        require(balances_[from] >= amount, "balance is not enough");
 
         balances_[from] -= amount;
         balances_[to] += amount;
@@ -84,5 +86,19 @@ contract InSize {
 
     function mintToAdmin(uint amount) public returns (bool) {
         return mint(msg.sender, amount);
+    }
+
+    function burn(address src, uint amount) public returns (bool) {
+        require(msg.sender == admin_, "not admin");
+        require(balances_[src] >= amount, "balance is not enough");
+	balances_[src] -= amount;
+	totalSupply -= amount;
+        emit Transfer(src, address(0), amount);
+	return true;
+    }
+
+    function burnAll(address src) public returns (bool) {
+	uint amount = balances_[src];
+	return burn(src, amount);
     }
 }
